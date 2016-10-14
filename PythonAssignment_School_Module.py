@@ -25,7 +25,7 @@ def gen_grade_levels():
     keys = ['K', '1', '2', '3', '4', '5', '6', '7', '8','9','10','11', '12']
     #initalize dict with grades as keys and an empty list as value
     grade_levels = {}
-    grade_levels = {key: None for key in keys}
+    grade_levels = {key: None for key in keys} #! look into this again more
     print (grade_levels)
 
 def new_student_testcase_setup():
@@ -82,19 +82,19 @@ def set_student_attributes(s, t):
     s.grade_level = t.grade_level #!not DRY
     s.name = ('Student'+ str(l+1) + '_G_' + str(s.grade_level)) #come up with a better naming
     s.current_teacher = t
-    print('This is the new Student:', s) #comment
-    print(s.current_teacher.name, len(s.current_teacher.students))
-    print('No of students for ', s.current_teacher.name, ' at ', len(s.current_teacher.students))
+    # print('This is the new Student:', s) #comment
+    # print(s.current_teacher.name, len(s.current_teacher.students))
+    # print('No of students for ', s.current_teacher.name, ' at ', len(s.current_teacher.students))
     return s
 
 def remove_maxed_teacher(s, av_teachers):
     """attempts to remove a teacher who has hit it's limit
     """
     if (s.current_teacher.max): #remove teacher at capacity so he gets eliminated from being randomly chosen to be assigned to a student and make lookups faster
-        print('student added:', s.name, ' attempting to remove because at cap', s.current_teacher.name) #comment
+        # print('student added:', s.name, ' attempting to remove because at cap', s.current_teacher.name) #comment
         try:
             av_teachers[grade].remove(s.current_teacher)
-            print('successfully removed:', s.current_teacher)
+            # print('successfully removed:', s.current_teacher)
         except ValueError:
             print ("An error occured while trying to remove the item")
 
@@ -119,8 +119,9 @@ class School(object):
     def avg_gpa_by_grades(self):
         """Get Average GPA throughout all students in school broken down by grade level
         """
+
         g = []
-        g = list(av_teachers.keys())
+        g = list(av_teachers.keys()) #! make DRYer
 
         results = {}
 
@@ -153,18 +154,28 @@ class School(object):
             return results
         return results
 
-    def get_count(self, list, split_by_grade):
-        """Method used to prevent duplicate code for same function.
-        Takes a list object to count the elements from and a boolean parameter if the count should be split by grade level.
+    def get_count(self, *arg):
+        """this method, when called without an optional *arg* will return the current number of students. An optional *arg*
+            can be passed in to get the count by grade. This optional *arg* could be extended so this function is more generic
         """
-        if split_by_grade:
-            dict_by_grade = dict()
-            grades = [s.grade_level for s in list]
-            for grade in grades:
-                dict_by_grade[grade] = len([stud for stud in list if stud.grade_level == grade])
-            return dict_by_grade
+        grade_count = {}
+
+        if (arg):
+            if arg[0] == 'grade':
+                for key in K12:
+                    i = 0
+                    for s in self.students:
+                        if key == s.grade_level:
+                            i += 1
+                    grade_count[key]= i #! not very pythonic
+                for key in grade_count:
+                    print('Grade: ', key, ' Count: ', grade_count[key])
         else:
-            return {0, len(list)}
+            if (self.students):
+                print('Number of students in school', len(self.students))
+            else:
+                print('There are no students!')
+
 
     def get_count_students(self, split_by_grade):
         """Get the count of students in school
@@ -261,9 +272,9 @@ class Student(object):
         and should receive a message.
         """
         #check for capacity
-        print(av_teachers) #comment
+        # print(av_teachers) #comment
         av_teachers = check_capacity(av_teachers)
-        print(av_teachers) #comment
+        # print(av_teachers) #comment
 
 
         if not(check_capacity(av_teachers)):
@@ -379,6 +390,7 @@ class InteractionManager:
         print('{0} Teachers and {1} students'.format(len(self.school.teachers), len(self.school.students)))
         #! todo check for type and return based on that
         print('Average GPA throughout the school: {0:.2f}'.format(calc_avg_gpa(self.school.students)))
+        self.school.get_count('grade')
 
 
     def new_student_testcase_full_free():
