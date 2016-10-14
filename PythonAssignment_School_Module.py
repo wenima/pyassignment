@@ -9,13 +9,14 @@ list_students = []
 K12 = ['K', '1', '2', '3', '4', '5', '6', '7', '8','9','10','11', '12']
 
 def calc_avg_gpa(list):
-    """takes a list of student names and returns the avg GPA
+    """takes a list of either student names or teacher names and returns the avg GPA.
     """
     if (list):
         avg_gpa = sum(float(item.gpa) for item in list) / len(list)
         return avg_gpa
     else:
         return 'There are no students!'
+
 
 def gen_grade_levels():
     """generates a dictionary with grade as key and a list of type student
@@ -198,6 +199,17 @@ class School(object):
                 print('Number of teachers in school', len(self.teachers))
             else:
                 print('There are no teachers!')
+
+    def get_avg_gpa_by_teacher(self):
+
+        for item in self.teachers:
+            avg_gpa = calc_avg_gpa(item.students)
+            if type(avg_gpa) is str: #! is this canonic?
+                print('Teacher: ', item.name, ' Avg GPA: N/A (No students assigned to this teacher))')
+            else:
+                print('Teacher: ', item.name, ' Avg GPA: {0:.2f}'.format(avg_gpa))
+
+
 
     def get_students_sorted_by_grade(self):
         """Get all students sorted ascending by their grade level
@@ -406,6 +418,8 @@ class InteractionManager:
         self.school.get_count_students('grade')
         print('Teachers:')
         self.school.get_count_teachers('grade')
+        print('avg gpa by teacher:')
+        self.school.get_avg_gpa_by_teacher()
 
 
     def new_student_testcase_full_free():
