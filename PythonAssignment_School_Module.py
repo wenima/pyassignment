@@ -11,11 +11,11 @@ K12 = ['K', '1', '2', '3', '4', '5', '6', '7', '8','9','10','11', '12']
 def calc_avg_gpa(list):
     """takes a list of student names and returns the avg GPA
     """
-    sum_gpa = 0
-    for s in list:
-        sum_gpa += s.gpa
-    avg_gpa = sum_gpa / len(list)
-    return avg_gpa
+    if (list):
+        avg_gpa = sum(float(item.gpa) for item in list) / len(list)
+        return avg_gpa
+    else:
+        return 'There are no students!'
 
 def gen_grade_levels():
     """generates a dictionary with grade as key and a list of type student
@@ -87,7 +87,6 @@ def set_student_attributes(s, t):
     print('No of students for ', s.current_teacher.name, ' at ', len(s.current_teacher.students))
     return s
 
-
 def remove_maxed_teacher(s, av_teachers):
     """attempts to remove a teacher who has hit it's limit
     """
@@ -117,34 +116,24 @@ class School(object):
             dict_grade_teacher[key] = avail_t
         return dict_grade_teacher
 
-    def avg_gpa_overall(self):
-        """ Get Average GPA throughout all students in school
-        """
-        if self.students != None:
-            avg_gpa = sum(float(stud.gpa) for stud in self.students) / len(self.students)
-            return avg_gpa
-        return float(0)
-
     def avg_gpa_by_grades(self):
         """Get Average GPA throughout all students in school broken down by grade level
         """
-        results = dict()
-        if self.students != None:
-            list_grades = [s.grade_level for s in self.students]
-            #!needs rework
-            # distinct list to remove duplicates (convert to set and back to list)
-            list_grades = list(set(list_grades))
-            for grade in list_grades:
-                sum_gpa = 0
-                i = 0
-                for stud in self.students:
-                    if grade == stud.grade_level:
-                        print('Name:', stud.name + ',GPA:', stud.gpa)
-                        sum_gpa += stud.gpa
-                        i += 1
-                        avg_gpa = sum_gpa/i
-                        print(avg_gpa)
-                        results[grade] = avg_gpa
+        g = []
+        g = list(av_teachers.keys())
+
+        results = {}
+
+        for grade in g:
+            sum_gpa = 0
+            i = 0
+            for s in self.students:
+                if grade == s.grade_level:
+                    print('Name:', s.name + ',GPA:', s.gpa)
+                    sum_gpa += s.gpa
+                    i += 1
+                    avg_gpa = sum_gpa/i
+                    results[grade] = avg_gpa
         return results
 
     def avg_gpa_by_teachers(self, grade_level):
@@ -200,7 +189,6 @@ class School(object):
 
         # To return a new list, use the sorted() built-in function...
         # newlist = sorted(ut, key=lambda x: x.count, reverse=True)
-
 
 class Teacher(object):
     """represents a teacher object
@@ -302,7 +290,6 @@ class Student(object):
         t.check_students_max()
         return s
 
-
 class InteractionManager:
     """use to manage the communication with user in console
     """
@@ -322,14 +309,12 @@ class InteractionManager:
         self.school = School()
         # setting up the initial faculty
         random.seed()
-        num_teachers = random.randint(1, 3)
+        num_teachers = random.randint(0, 12)
         print('num_teachers:', num_teachers) #comment
-        if num_teachers == 0:
-            print('No Teachers') #! add logic
-        else:
-            for i in range(num_teachers):
-                t = Teacher();
-                t.hire()
+            # print('No Teachers'
+        for i in range(num_teachers):
+            t = Teacher();
+            t.hire()
         self.school.teachers = list_teachers
 
         #if no teachers have arrived, there are no students
@@ -337,7 +322,7 @@ class InteractionManager:
             self.school.students = []
         else:
             av_teachers = self.school.gen_grade_teacher_dict()
-            student_enrollment_number = random.randint(22, 25)
+            student_enrollment_number = random.randint(82, 100)
             print(student_enrollment_number)
             for i in range(student_enrollment_number): #largest HS in USA has 8076 #!more in readme
                 s = Student()
@@ -350,19 +335,23 @@ class InteractionManager:
             print('Enrollment completed')
             self.school.students = list_students
             # self.grade_levels = self.gen_grade_levels()
-            self.output_startup()
             # new_student_testcase_full_full(av_teachers)
+            print('Current size of faculty is: ', len(self.school.teachers))
             print('Hiring new teacher with no grade assigned:....')
             t = Teacher()
             t.hire()
             self.school.teachers.append(t)
             print('Teacher: ', t.name, ', hired for Grade: ', t.grade_level)
+            print('New size of faculty is: ', len(self.school.teachers))
+            print('Current size of faculty is: ', len(self.school.teachers))
             print('Hiring a new teacher to work in Grade 12:.....')
             grade_level = '12'
             t_for_12= Teacher()
             t_for_12.hire(grade_level)
             print('Teacher: ', t_for_12.name, ', hired for Grade: ', t_for_12.grade_level)
+            print('New size of faculty is: ', len(self.school.teachers))
             self.school.teachers.append(t)
+        self.output_startup()
 
 
 
@@ -382,11 +371,14 @@ class InteractionManager:
                     self.run_roll_call(True)
 
     def output_startup(self):
-        """Output the key information of the generated school
+        """Output the key information of the generated school. Handles edge cases where no teachers have been
+            generated so no school can start up and handles the case where not enough students are available
+            for enrollment
         """
         print('School "{0}" generated'.format(self.school.name))
         print('{0} Teachers and {1} students'.format(len(self.school.teachers), len(self.school.students)))
-        print('Average GPA throughout the school: {0:.2f}'.format(self.school.avg_gpa_overall()))
+        #! todo check for type and return based on that
+        print('Average GPA throughout the school: {0:.2f}'.format(calc_avg_gpa(self.school.students)))
 
 
     def new_student_testcase_full_free():
@@ -433,7 +425,6 @@ class InteractionManager:
         elif int(opt) == 2:
             w_grade = self.get_input('Enter grade for report (1-12): ')
             avg_by_teacher = self.school.avg_gpa_by_teachers(int(w_grade))
-            # print(avg_by_teacher)
             if len(avg_by_teacher) == 0:
                 print('There are no teachers!')
             else:
