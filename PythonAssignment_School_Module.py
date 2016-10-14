@@ -154,7 +154,7 @@ class School(object):
             return results
         return results
 
-    def get_count(self, *arg):
+    def get_count_students(self, *arg):
         """this method, when called without an optional *arg* will return the current number of students. An optional *arg*
             can be passed in to get the count by grade. This optional *arg* could be extended so this function is more generic
         """
@@ -164,7 +164,7 @@ class School(object):
             if arg[0] == 'grade':
                 for key in K12:
                     i = 0
-                    for s in self.students:
+                    for s in self.students:     #! need to find a way to make this generic
                         if key == s.grade_level:
                             i += 1
                     grade_count[key]= i #! not very pythonic
@@ -177,15 +177,27 @@ class School(object):
                 print('There are no students!')
 
 
-    def get_count_students(self, split_by_grade):
-        """Get the count of students in school
+    def get_count_teachers(self, *arg):
+        """this method, when called without an optional *arg* will return the current number of teachers. An optional *arg*
+            can be passed in to get the count by grade. This optional *arg* could be extended so this function is more generic
         """
-        return self.get_count(self.students, split_by_grade)
+        grade_count = {}
 
-    def get_count_teachers(self, split_by_grade):
-        """Get the count of teachers in school
-        """
-        return self.get_count(self.teachers, split_by_grade)
+        if (arg):
+            if arg[0] == 'grade':
+                for key in K12:
+                    i = 0
+                    for t in self.teachers:     #! need to find a way to make this generic
+                        if key == t.grade_level:
+                            i += 1
+                    grade_count[key]= i #! not very pythonic
+                for key in grade_count:
+                    print('Grade: ', key, ' Count: ', grade_count[key])
+        else:
+            if (self.students):
+                print('Number of teachers in school', len(self.teachers))
+            else:
+                print('There are no teachers!')
 
     def get_students_sorted_by_grade(self):
         """Get all students sorted ascending by their grade level
@@ -390,7 +402,10 @@ class InteractionManager:
         print('{0} Teachers and {1} students'.format(len(self.school.teachers), len(self.school.students)))
         #! todo check for type and return based on that
         print('Average GPA throughout the school: {0:.2f}'.format(calc_avg_gpa(self.school.students)))
-        self.school.get_count('grade')
+        print('Students:')
+        self.school.get_count_students('grade')
+        print('Teachers:')
+        self.school.get_count_teachers('grade')
 
 
     def new_student_testcase_full_free():
